@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nailong Engine - Login & Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Montserrat:wght@400;600&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+
+  <style>
+    /* ========== GLOBAL & INITIAL SETUP (from structure 1) ========== */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+
+    /* Variabel CSS dari Struktur 2, digunakan di seluruh kode */
+    :root{
+      --bg:#070607;
+      --muted:#dcdcdc;
+      --panel:rgba(255,255,255,0.04);
+      --neon1:yellow;
+      --neon2:#000;
+      --text:#e6e6ef;
+      --accent:yellow;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: black;
+      color: black;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative; 
+      overflow-x: hidden;
+    }
+    html,body{height:100%;font-family:'Orbitron',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+    /* ====== VIDEO SCREEN (Struktur 1: Tampilan Awal) ====== */
+    .video-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-screen.hidden {
+      display: none;
+    }
+
+    .video-box {
+      width: 80%;
+      max-width: 380px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 25px grey;
+    }
+
+    .video-box video {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .video-caption {
+      color: white;
+      font-size: 16px;
+      margin-top: 14px;
+      font-family: monospace;
+      text-shadow: 0 0 8px grey;
+    }
+
+    /* Main App Container (Login) */
+    #login-container {
+      display: flex; /* Awalnya flex (tergantung JS), nanti disembunyikan */
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 10;
+      padding-top: 40px; 
+    }
+    #login-container.hidden {
+      display: none !important;
+    }
+
+
+    /* Header/Title */
+    h1.main-title {
+      font-family: 'Orbitron', sans-serif;
+      color: yellow;
+      font-size: 32px;
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px yellow;
+      letter-spacing: 2px;
+    }
+
+    /* Main Content Panels (Login) */
+    .container {
+      background: black;
+      border: 1px solid yellow;
+      padding: 24px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 0 25px yellow;
+      backdrop-filter: blur(5px);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    /* Profile Card and Details */
+    .profile-card {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .profile-logo {
+      width: 100px; 
+      height: 100px; 
+      margin: 0 auto 15px; 
+      display: block; 
+      border-radius: 50%;
+      box-shadow: 0 0 10px yellow; 
+      border: 3px solid yellow; 
+      object-fit: cover;
+    }
+
+    /* Section Titles and Inputs (Login) */
+    .section-title { 
+      font-family: 'Orbitron', sans-serif; 
+      font-size: 18px; 
+      color: yellow; 
+      margin-bottom: 15px; 
+      text-align: left; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+    }
+    
+    #login-container input[type="text"], #login-container input[type="password"] { 
+      width: 100%; 
+      padding: 14px 18px; 
+      border-radius: 10px; 
+      background: yellow; 
+      border: 1px solid yellow; 
+      color: black; 
+      margin-bottom: 25px; 
+      font-size: 16px; 
+      font-family: 'Montserrat', sans-serif; 
+      outline: none; 
+      transition: border-color 0.3s ease, box-shadow 0.3s ease; 
+    }
+    
+    #login-container input::placeholder {
+      color: black;
+    }
+    
+    #login-container input:focus {
+      border-color: yellow;
+      box-shadow: 0 0 10px yellow;
+    }
+
+    /* Execute Button (Login) */
+    .execute-button { 
+      background: linear-gradient(90deg, yellow, yellow); 
+      color: black; 
+      padding: 18px; 
+      width: 100%; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      border: none; 
+      margin-bottom: 12px; 
+      cursor: pointer; 
+      font-size: 18px; 
+      letter-spacing: 1px; 
+      transition: 0.3s ease, box-shadow 0.3s ease; 
+      box-shadow: 0 0 15px yellow; 
+    }
+    
+    .execute-button:hover { 
+      background: linear-gradient(90deg, yellow, yellow); 
+      box-shadow: 0 0 25px yellow; 
+    }
+
+    /* ========== DASHBOARD/MENU (from structure 2) ========== */
+    #dashboardContent {
+      display: none; /* Awalnya disembunyikan */
+      width: 100%;
+    }
+
+    .wrap{max-width:980px;margin:0 auto;padding:18px;}
+    header{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+    .logo{font-weight:700;font-size:20px;letter-spacing:1px}
+    .profile{font-size:18px;color:var(--muted);cursor:pointer}
+
+    /* hero/banner */
+    .hero{position:relative;margin:18px;border-radius:16px;overflow:hidden;}
+    .hero img{width:100%;height:170px;object-fit:cover;display:block;filter:contrast(1.05) saturate(1.05);}
+    .hero .overlay{position:absolute;bottom:10px;left:12px;color:#fff;text-shadow:0 2px 10px #000;}
+    .hero .badge{background:rgba(0,0,0,0.5);padding:5px 10px;border-radius:10px;font-size:13px;margin-bottom:5px;display:inline-block;}
+    .hero p{font-size:13px;color:#ccc}
+
+    /* menu row */
+    .menu-row{display:flex;justify-content:space-around;margin:20px 0;gap:12px;flex-wrap:wrap;}
+    .menu-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;min-width:70px;}
+    .circle{width:60px;height:60px;border-radius:50%;background:linear-gradient(145deg,#1a191f,#0b0b0d);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,0.6);font-size:24px;}
+    .label{font-size:12px;color:var(--muted);}
+
+    /* action button */
+    .action-btn{
+      display:flex;align-items:center;justify-content:space-between;
+      background:linear-gradient(90deg,#161618,#0b0b0d);
+      color:white;margin:14px 0;padding:12px 16px;border-radius:18px;
+      transition:0.24s ease;box-shadow:0 6px 20px rgba(0,0,0,0.5);
+    }
+    .action-btn:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.7);}
+    .action-left{display:flex;align-items:center;gap:10px;font-size:16px}
+    .action-right{font-size:18px}
+
+    /* popup base */
+    .popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:0.25s;z-index:999}
+    .popup.active{opacity:1;pointer-events:auto}
+    .popup-box{background:#111017;padding:20px;border-radius:18px;width:92%;max-width:480px;text-align:left;position:relative}
+    .popup .close{position:absolute;top:12px;right:16px;font-size:20px;cursor:pointer;color:#fff}
+    .popup h2{margin-bottom:12px;font-size:18px;color:var(--accent);text-align:center}
+
+    /* result area */
+    .result-box{margin-top:12px;font-size:14px;text-align:left;word-wrap:break-word;color:#ccc}
+
+    /* forms & inputs */
+    .input-box{margin:10px 0;display:flex;flex-direction:column;gap:8px}
+    .input-box input,.input-box select{padding:10px;border-radius:8px;border:none;outline:none;background:#1b1a20;color:#fff;font-size:15px}
+    .input-box button{background:linear-gradient(90deg,yellow,grey);color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:600}
+
+    /* ========== ATTACK PAGE ========== */
+    #attackPage{display:none;position:fixed;inset:0;z-index:1000;background:radial-gradient(circle at top,#0b0000 0%,#000 45%);overflow:auto;padding:18px 10px;font-family:Inter,sans-serif;color:var(--text)}
+    .atk-topbar{height:56px;display:flex;align-items:center;gap:12px;background:transparent;color:var(--accent);padding:10px 8px;margin:8px 0 22px 0}
+    .atk-topbar h3{flex:1;font-family:'Orbitron',sans-serif;font-size:18px;color:var(--accent);margin:0;letter-spacing:1px}
+    .atk-topbar .back{cursor:pointer}
+
+    .atk-center{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px;margin-bottom:22px}
+    .atk-title{font-family:'Orbitron',sans-serif;color:var(--accent);letter-spacing:2px;font-size:20px;text-shadow:0 0 12px rgba(255,80,90,0.35)}
+
+    .atk-logo-wrap{position:relative;width:100%;max-width:760px;height:170px;border-radius:36px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto;
+      box-shadow:0 24px 70px black,0 8px 20px rgba(0,0,0,0.6);
+      border:6px solid rgba(8,4,20,0.55);
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.00));
+    }
+    .atk-logo-glow{position:absolute;inset:-18px;border-radius:40px;filter:blur(28px);background:radial-gradient(circle at 50% 40%,yellow,rgba(255,90,110,0.10),rgba(0,0,0,0));z-index:-1;pointer-events:none;}
+    .atk-logo-img{position:relative;z-index:2;width:62%;max-width:420px;height:auto;background-repeat:no-repeat;background-position:center;background-size:contain;pointer-events:none;-webkit-mask-image:linear-gradient(#000 0 0);animation:logoFloat 6s ease-in-out infinite;}
+    @keyframes logoFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+    .atk-logo-wrap::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 30%,rgba(0,0,0,0.45) 100%);mix-blend-mode:multiply;pointer-events:none;z-index:1}
+
+    .atk-form{width:100%;max-width:480px;margin:18px auto;display:flex;flex-direction:column;gap:22px;align-items:center;padding-bottom:24px}
+    .atk-form .form{display:flex;flex-direction:column;gap:18px;width:100%;align-items:center}
+    .atk-form input[type="text"],.atk-form select{width:100%;padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:var(--panel);color:var(--text);font-size:15px;outline:none;box-shadow:0 6px 30px rgba(184,77,255,0.03);backdrop-filter:blur(4px);margin-bottom:6px}
+    .atk-hint{font-size:13px;color:#cfcfcf;text-align:center}
+
+    .btn{width:100%;max-width:360px;padding:16px;border-radius:28px;border:none;cursor:pointer;font-weight:700;font-size:15px;letter-spacing:0.6px;color:#fff;background:linear-gradient(90deg,var(--neon1),var(--neon2));box-shadow:0 8px 30px black,0 0 50px black;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .18s ease,box-shadow .2s ease}
+    .btn:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 18px 60px black,0 0 80px rgba(255,90,110,0.08)}
+    .btn i{margin-right:6px}
+
+    .back-btn{margin-top:20px;padding:10px 22px;background:rgba(255,255,255,0.06);border:none;border-radius:30px;color:var(--text);cursor:pointer;transition:0.24s}
+    .back-btn:hover{background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#fff;box-shadow:0 0 15px var(--neon1),0 0 15px var(--neon2)}
+
+    /* dropdown */
+    .dropdown-orbit{position:relative;width:100%;font-family:'Orbitron',sans-serif;}
+    .dropdown-selected{padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--text);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.25s ease;}
+    .dropdown-list{position:absolute;top:108%;left:0;right:0;background:#0c0b0e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-10px);transition:all .3s ease;z-index:50;}
+    .dropdown-list.active{opacity:1;pointer-events:auto;transform:translateY(0);}
+    .dropdown-item{padding:14px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:#fff;cursor:pointer;}
+    .dropdown-item:last-child{border-bottom:none;}
+    .dropdown-item:hover{background:rgba(255,255,255,0.07);color:var(--accent);}
+
+    /* responsive */
+    @media (max-width:880px){.wrap{padding:12px}.atk-logo-img{width:72%}}
+    @media (max-width:560px){
+      .hero img{height:120px}
+      .atk-logo-wrap{height:120px;border-radius:22px}
+      .atk-logo-img{width:78%}
+      .atk-form{padding:12px;gap:16px}
+      .atk-form .form{gap:12px}
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="video-screen" id="introScreen">
+    <div class="video-box">
+      <video autoplay muted playsinline id="introVideo">
+        <source src="https://files.catbox.moe/28xhm6.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-caption"></div>
+  </div>
+
+  <div class="app-wrapper" id="login-container" style="display: none;">
+    <h1 class="main-title">NAILONG</h1>
+
+    <div class="container profile-card">
+        <img src="https://files.catbox.moe/wvci3o.jpg" alt="Logo" class="profile-logo" />
+        <div class="profile-username" style="font-family: 'Orbitron', sans-serif; font-size: 24px; color: #E0E0E0; font-weight: bold; margin-bottom: 8px;">Login Account</div>
+        <div class="profile-details" style="font-size: 14px; color: #9A9A9A;">
+          Please enter your credentials to access the dashboard
+        </div>
+    </div>
+
+    <div class="container">
+        <form method="POST" action="/auth" id="loginForm">
+            <div class="section-title">Username</div>
+            <input type="text" name="username" placeholder="Enter your username" required />
+
+            <div class="section-title">Password</div>
+            <input type="password" name="key" placeholder="Enter your password" required />
+
+            <button type="button" id="manualLoginBtn" class="execute-button">
+              <i class="fas fa-sign-in-alt"></i> LOGIN
+            </button>
+        </form>
+    </div>
+  </div>
+
+
+  <div class="wrap" id="dashboardContent">
+    <header>
+      <div class="logo">Nailong Engine</div>
+      <div class="profile" id="accountBtn" title="Akun"><i class="fa fa-user"></i></div>
+    </header>
+
+    <section class="hero" aria-hidden="false">
+      <img src="https://img1.pixhost.to/images/9671/654841318_fhkry.jpg" alt="banner">
+      <div class="overlay">
+        <div class="badge"></div>
+        <p>New Update Function & Feature</p>
+      </div>
+    </section>
+
+    <div class="menu-row" role="navigation" aria-label="Main menu">
+      <div class="menu-item" id="spamNglBtn" title="Spam NGL">
+        <div class="circle">🎉</div>
+        <div class="label">Spam NGL</div>
+      </div>
+
+      <div class="menu-item" id="trackerBtn" title="Track IP">
+        <div class="circle">📍</div>
+        <div class="label">Track IP</div>
+      </div>
+
+      <div class="menu-item" id="attackBtn" title="Attacks">
+        <div class="circle"><i class="fa fa-location-arrow"></i></div>
+        <div class="label">Whatsapp</div>
+      </div>
+
+      <div class="menu-item" id="accountBtn2" title="Account settings">
+        <div class="circle"><i class="fa fa-cog"></i></div>
+        <div class="label">Account</div>
+      </div>
+    </div>
+
+    <a href="https://t.me/nailonginfo" target="_blank" class="action-btn" aria-label="Telegram channel">
+      <div class="action-left"><i class="fa fa-user-plus"></i><span> Telegram Channel</span></div>
+      <div class="action-right"><i class="fa fa-chevron-right"></i></div>
+    </a>
+
+    <a href="#" id="listSenderBtn" class="action-btn" aria-label="List sender toggle">
+      <div class="action-left"><i class="fa fa-list"></i><span> List Sender</span></div>
+      <div class="action-right"><i class="fa fa-chevron-right"></i></div>
+    </a>
+  </div>
+
+  <div id="attackPage" aria-hidden="true" role="region" aria-label="Attack page">
+    <div class="atk-topbar">
+      <div class="back" id="atkBackBtn" title="Kembali"><i class="fa fa-arrow-left" style="color:var(--accent);font-size:16px;"></i></div>
+      <h3>Kembali</h3>
+    </div>
+
+    <div class="atk-center">
+      <div class="atk-logo-wrap" aria-hidden="false" role="img" aria-label="Toxxic Avanger glowing logo card">
+        <div class="atk-banner" aria-hidden="true" style="position:absolute;inset:0;background-image:url('https://img1.pixhost.to/images/9671/654841318_fhkry.jpg');background-size:cover;background-position:center center;filter:contrast(1.02) saturate(1.1);transform:scale(1.02);"></div>
+        <div class="atk-logo-glow" aria-hidden="true"></div>
+        <div class="atk-logo-img" id="atkLogoImg" style="background-image:url('https://img1.pixhost.to/images/9671/654845679_fhkry.jpg');" aria-hidden="false"></div>
+      </div>
+
+      <div class="atk-title">Attack Menu</div>
+    </div>
+
+    <div class="atk-form" role="form" aria-label="Attack form">
+      <div class="form active" id="executeTab">
+        <input type="text" id="numberInput" placeholder="CONTOH : 628...." aria-label="Nomor target" />
+        <div class="dropdown-orbit" id="orbitDropdown" style="width:100%;">
+          <div class="dropdown-selected" id="selectedType">PILIH TYPE BUG <i class="fa fa-chevron-down"></i></div>
+          <div class="dropdown-list" id="dropdownList">
+            <div class="dropdown-item" data-value="delay">Combo delay invisible</div>
+            <div class="dropdown-item" data-value="medium">Blank iOS</div>
+            <div class="dropdown-item" data-value="blank-ios">Hard Invisible</div>
+            <div class="dropdown-item" data-value="blank">Blank Android</div>
+            <div class="dropdown-item" data-value="fc">Delay Android</div>
+          </div>
+        </div>
+        <button id="executeBtn" class="btn" aria-label="Execute"><i class="fas fa-bolt"></i> SEND BUG</button>
+      </div>
+
+      <div id="statusMsg" class="atk-hint"></div>
+      <button id="backBtn" class="back-btn" style="display:none;">← Back Home</button>
+    </div>
+  </div>
+    
+  <div class="popup" id="accountPopup" aria-hidden="true">
+    <div class="popup-box">
+      <div class="close" onclick="closePopup('accountPopup')" title="Tutup">&times;</div>
+      <h2>Account Info</h2>
+      <div class="account-info" style="color:#ddd;font-size:14px;line-height:1.6;">
+        <p><b>ACCOUNT:</b> <span id="accName">rell</span></p>
+        <p><b>PASSWORD:</b> <span id="accPass">100</span></p>
+        <p><b>EXPIRED:</b> <span id="accExp">permanent</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="listSenderPopup" aria-hidden="true">
+    <div class="popup-box">
+      <div class="close" onclick="closePopup('listSenderPopup')">&times;</div>
+      <h2> List Sender</h2>
+      <div class="account-info">
+        <p>- Daftar Sender Aktif: Default/Sample List</p>
+        <p style="color:#999;">Connected sender</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="spamNglPopup" aria-hidden="true">
+    <div class="popup-box">
+      <div class="close" onclick="closePopup('spamNglPopup')" title="Tutup">&times;</div>
+      <h2>🎉 Spam NGL</h2>
+      <div class="input-box">
+        <input type="text" id="nglLink" placeholder="Masukkan Link NGL...">
+        <input type="text" id="nglMessage" placeholder="Masukkan Pesan...">
+        <input type="number" id="nglCount" placeholder="Jumlah...">
+        <button id="sendNglBtn">Kirim</button>
+      </div>
+      <div id="spamResult" class="result-box"></div>
+    </div>
+  </div>
+
+  <div class="popup" id="trackerPopup" aria-hidden="true">
+    <div class="popup-box">
+      <div class="close" onclick="closePopup('trackerPopup')" title="Tutup">&times;</div>
+      <h2>📍 Track IP</h2>
+      <div class="input-box">
+        <input type="text" id="ipInput" placeholder="Masukkan Alamat IP...">
+        <button id="trackIpBtn">Cari</button>
+      </div>
+      <div id="ipResult" class="result-box"></div>
+    </div>
+  </div>
+
+<script>
+  /* ======= PENGATURAN TAMPILAN (Video, Login, Dashboard) ======= */
+  const video = document.getElementById("introVideo");
+  const introScreen = document.getElementById("introScreen");
+  const loginContainer = document.getElementById("login-container");
+  const dashboardContent = document.getElementById("dashboardContent");
+  const manualLoginBtn = document.getElementById("manualLoginBtn");
+
+  // Fungsi untuk menampilkan dashboard dan menyembunyikan layar login/intro
+  function showDashboard() {
+    introScreen.classList.add("hidden");
+    loginContainer.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    document.body.style.overflow = 'auto'; // Agar bisa scroll di dashboard
+  }
+  
+  // 1. Setelah Video Intro Selesai
+  video.addEventListener("ended", () => {
+    introScreen.style.display = "none";
+    loginContainer.style.display = 'flex'; // Tampilkan layar login
+  });
+
+  // 2. Simulasi Login Berhasil
+  manualLoginBtn?.addEventListener('click', () => {
+    // Di sini seharusnya ada validasi login, tapi untuk gabungan ini, kita langsung masuk dashboard
+    showDashboard();
+  });
+
+
+  /* ======= SCRIPT DASHBOARD (Struktur 2) ======= */
+  const attackPage = document.getElementById('attackPage');
+  const atkBackBtn = document.getElementById('atkBackBtn');
+  const attackBtn = document.getElementById('attackBtn');
+
+  const spamNglBtn = document.getElementById('spamNglBtn');
+  const trackerBtn = document.getElementById('trackerBtn');
+  const accountBtn = document.getElementById('accountBtn');
+  const accountBtn2 = document.getElementById('accountBtn2');
+  const listSenderBtn = document.getElementById('listSenderBtn');
+
+  const executeBtn = document.getElementById('executeBtn');
+  const numberInput = document.getElementById('numberInput');
+  const selected = document.getElementById('selectedType');
+  const dropdownList = document.getElementById('dropdownList');
+  const statusMsg = document.getElementById('statusMsg');
+
+  let selectedValue = "";
+
+  /* ======= Basic interactions (Dashboard/Attack) ======= */
+  attackBtn && (attackBtn.onclick = ()=> {
+    dashboardContent.style.display = 'none';
+    attackPage.style.display = 'block';
+    attackPage.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  });
+  atkBackBtn && (atkBackBtn.onclick = ()=> {
+    attackPage.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    attackPage.setAttribute('aria-hidden','true');
+    document.body.style.overflow = 'auto';
+  });
+
+  /* Popups open/close helpers */
+  function openPopup(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.add('active');
+    el.removeAttribute('aria-hidden');
+  }
+  function closePopup(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('active');
+    el.setAttribute('aria-hidden','true');
+  }
+
+  /* Hook popup buttons */
+  spamNglBtn && spamNglBtn.addEventListener('click', ()=> openPopup('spamNglPopup'));
+  trackerBtn && trackerBtn.addEventListener('click', ()=> openPopup('trackerPopup'));
+  accountBtn && accountBtn.addEventListener('click', ()=> openPopup('accountPopup'));
+  accountBtn2 && accountBtn2.addEventListener('click', ()=> openPopup('accountPopup'));
+  listSenderBtn && listSenderBtn.addEventListener('click', (ev)=>{
+    ev.preventDefault();
+    openPopup('listSenderPopup');
+  });
+
+  /* Close popup on outside click */
+  document.addEventListener('click', (ev) => {
+    const activePopup = document.querySelector('.popup.active');
+    if(!activePopup) return;
+    const isInside = ev.target.closest('.popup-box');
+    const clickedToggle = ev.target.closest('#listSenderBtn') || ev.target.closest('#spamNglBtn') || ev.target.closest('#trackerBtn') || ev.target.closest('#accountBtn') || ev.target.closest('#accountBtn2');
+    if (!isInside && !clickedToggle) {
+      activePopup.classList.remove('active');
+      activePopup.setAttribute('aria-hidden','true');
+    }
+  });
+
+  /* Close popup with Escape */
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      document.querySelectorAll('.popup.active').forEach(el => {
+        el.classList.remove('active');
+        el.setAttribute('aria-hidden','true');
+      });
+      if (attackPage.style.display === 'block') {
+        atkBackBtn && atkBackBtn.click();
+      }
+    }
+  });
+
+  /* ======= Spam NGL (Simulasi) ======= */
+  async function sendSpam(){
+    const link = document.getElementById('nglLink').value.trim();
+    const msg = document.getElementById('nglMessage').value.trim();
+    const count = document.getElementById('nglCount').value;
+    const resEl = document.getElementById('spamResult');
+
+    if(!link || !msg || !count){
+      resEl.innerHTML = `<p style="color:#ffb3b3;">Isi semua field dulu.</p>`;
+      return;
+    }
+
+    resEl.innerHTML = `<p style="color:#ccc;">Mengirim ${count} pesan ke ${link}...</p>`;
+    // Ganti dengan endpoint API Anda yang sebenarnya
+    setTimeout(() => {
+        resEl.innerHTML = `<p style="color:#8fffa3;">Berhasil dikirim!</p>`;
+    }, 1500); 
+  }
+  document.getElementById('sendNglBtn')?.addEventListener('click', sendSpam);
+
+  /* ======= Track IP (Simulasi) ======= */
+  async function trackIP(){
+    const ip = (document.getElementById('ipInput').value || 'check').trim();
+    const resEl = document.getElementById('ipResult');
+    
+    if(!ip) { resEl.innerHTML = `<p style="color:#ffb3b3;">Masukkan alamat IP.</p>`; return; }
+
+    // Simulasi respons data
+    resEl.innerHTML = `<p style="color:#ccc;">Mencari lokasi IP ${ip}...</p>`;
+    
+    setTimeout(() => {
+        const data = { 
+            ip: ip,
+            country_name: "Indonesia",
+            city: "Jakarta",
+            isp: "Simulasi ISP",
+            latitude: "-6.2088",
+            longitude: "106.8456"
+        };
+
+        resEl.innerHTML = `
+          <p><b>IP:</b> ${data.ip || '-'}</p>
+          <p><b>Negara:</b> ${data.country_name || '-'}</p>
+          <p><b>Kota:</b> ${data.city || '-'}</p>
+          <p><b>ISP:</b> ${data.isp || '-'}</p>
+          <p><b>Latitude:</b> ${data.latitude || '-'}</p>
+          <p><b>Longitude:</b> ${data.longitude || '-'}</p>
+        `;
+    }, 1500); 
+  }
+  document.getElementById('trackIpBtn')?.addEventListener('click', trackIP);
+
+  /* ======= Dropdown (attack page) ======= */
+  if (selected && dropdownList) {
+    selected.addEventListener('click', () => {
+      dropdownList.classList.toggle('active');
+    });
+
+    dropdownList.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        selectedValue = item.dataset.value || "";
+        selected.innerHTML = `${item.textContent} <i class=" fa-chevron-down"></i>`;
+        dropdownList.classList.remove('active');
+      });
+    });
+    // Menutup dropdown saat klik di luar
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#orbitDropdown') && dropdownList.classList.contains('active')) {
+            dropdownList.classList.remove('active');
+        }
+    });
+  }
+
+  /* ======= Execute button (Simulasi) ======= */
+  if (executeBtn) {
+    executeBtn.addEventListener('click', async () => {
+      const number = numberInput.value.trim().replace(/\s+/g, '');
+      statusMsg.style.color = '#ccc';
+      statusMsg.textContent = '';
+
+      if (!number || !selectedValue) {
+        statusMsg.style.color = '#ff6666';
+        statusMsg.textContent = 'Isi nomor & pilih type bug dulu!';
+        return;
+      }
+
+      // UI feedback
+      executeBtn.disabled = true;
+      const originalHTML = executeBtn.innerHTML;
+      executeBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Mengirim...';
+
+      // Simulasi proses pengiriman ke backend
+      setTimeout(() => {
+        // Asumsi berhasil
+        executeBtn.innerHTML = '<i class="fa fa-check"></i> Terkirim!';
+        statusMsg.style.color = '#8fff8f';
+        statusMsg.textContent = 'Berhasil dikirim ke target.';
+
+        // restore after short delay
+        setTimeout(() => {
+          executeBtn.disabled = false;
+          executeBtn.innerHTML = originalHTML;
+          statusMsg.textContent = '';
+        }, 2000);
+      }, 1500); 
+    });
+  }
+
+  // Populate Account Info (Simulasi)
+  (function populateAccount(){
+    const accName = localStorage.getItem('accName') || 'User123';
+    const accPass = localStorage.getItem('accPass') || '********';
+    const accExp  = localStorage.getItem('accExp')  || '30/11/2025';
+    document.getElementById('accName').textContent = accName;
+    document.getElementById('accPass').textContent = accPass;
+    document.getElementById('accExp').textContent = accExp;
+  })();
+</script>
+</body>
+</html>
